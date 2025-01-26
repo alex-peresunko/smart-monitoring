@@ -1,6 +1,6 @@
 {
   "generic": {
-    "parallelism": 10,
+    "parallelism": 5,
     "conn-timeout-seconds": 5
   },
   "profile": {

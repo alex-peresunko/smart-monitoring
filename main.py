@@ -18,7 +18,7 @@ def main():
     input_queue = queue.Queue()
     output_queue = queue.Queue()
 
-    requester = NRQLRequester(input_queue, output_queue)
+    requester = NRQLRequester(input_queue, output_queue, config["generic"]["parallelism"])
 
     for signal in profile["signals"]:
         name = signal["name"]
