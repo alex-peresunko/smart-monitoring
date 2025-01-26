@@ -1,10 +1,11 @@
 {
   "generic": {
-    "parallelism": 5,
-    "conn-timeout-seconds": 5
+    "parallelism": 5
   },
   "profile": {
-    "name": "profiles/profile-dev.json"
+    "name": "profiles/profile-dev.json",
+    "last_period_min": 60,
+    "last_weeks_to_check": 4
   },
   "newrelic": {
     "collection": "Smart_Monitoring_DEBUG"

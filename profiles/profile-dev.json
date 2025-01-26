@@ -29,36 +29,6 @@
       "name": "Count of events in MQQueueDetails",
       "nr_account": 3584211,
       "nrql": "SELECT count(*) from MQQueueDetails"
-    },
-    {
-      "name": "Unique count of Tibco queues",
-      "nr_account": 1679802,
-      "nrql": "SELECT uniquecount(`Queue Name`) from Queue"
-    },
-    {
-      "name": "Count of events in Queue",
-      "nr_account": 1679802,
-      "nrql": "SELECT count(`Queue Name`) from Queue"
-    },
-    {
-      "name": "Count of events in ORACLE",
-      "nr_account": 1679802,
-      "nrql": "SELECT count(*) from ORACLE"
-    },
-    {
-      "name": "Count of events in ProcessSample",
-      "nr_account": 1679802,
-      "nrql": "SELECT count(*) from ProcessSample"
-    },
-    {
-      "name": "Count of events in Log_TibcoBW_Prod",
-      "nr_account": 1679802,
-      "nrql": "SELECT count(*) from Log_TibcoBW_Prod"
-    },
-    {
-      "name": "Count of events in MQQueueDetails",
-      "nr_account": 1679802,
-      "nrql": "SELECT count(*) from MQQueueDetails"
     }
   ]
 }

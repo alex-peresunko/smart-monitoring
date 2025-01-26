@@ -39,7 +39,7 @@ class NRQLRequester:
             if data is None:
                 break
             # Process the data (replace this with actual processing logic)
-            request_id, account_id, nrql_query = data
+            request_id, week_num, account_id, nrql_query = data
             nrql_obj.set_account(account_id)
             result = None
             try:
@@ -48,7 +48,7 @@ class NRQLRequester:
                 logger.error(f"Thread {name} raised an exception: {e}")
                 pass
             finally:
-                output_queue.put((request_id, result))
+                output_queue.put((request_id, week_num, result))
                 input_queue.task_done()
 
     def request(self, data):
