@@ -4,11 +4,12 @@ import json
 import queue
 import time
 from src.nrql_requester import NRQLRequester
+from src.newrelic import Newrelic, NewrelicEvent
 from src.config_parser import ConfigParser
 from src.logger import Logger
 
 config = ConfigParser().config
-
+logger = Logger().get_logger(__name__)
 CURRENT_TIME_MS = int(round(time.time() * 1000))
 
 
@@ -50,9 +51,15 @@ def calc_average_historical(arr):
     else:
         return 0  # Return 0 or handle the case where no valid dictionaries are found
 
-def main():
-    logger = Logger().get_logger(__name__)
+def submit_events_to_newrelic(events) -> bool:
+    nr = Newrelic(config["newrelic"]["nr_ingest_account_id"], config["newrelic"]["ingesting_key"])
+    try:
+        nr.submit_data(events, config['newrelic']['collection'], compress=True)
+    except Exception as e:
+        logger.error(f"Failed submitting events to NR: {e}")
+    return True
 
+def main():
     profile = json.load(open(config["profile"]["name"], "r"))
 
     input_queue = queue.Queue()
@@ -102,8 +109,14 @@ def main():
         signal["historical_avg"] = calc_average_historical(signal["data"])
         signal["curr_value_deviation"] = get_latest_value(signal["data"]) / signal["historical_avg"] * 100
 
+    nr_events = []
     for signal in profile["signals"]:
-        print(f"Signal: {signal["name"]}, Data: {signal["data"]}, Hist avg: {signal["historical_avg"]}, Dev: {signal["curr_value_deviation"]}")
+        nr_event = NewrelicEvent()
+        nr_event.set_field_value("signalName", signal["name"])
+        nr_event.set_field_value("deviation", signal["curr_value_deviation"])
+        nr_events.append(nr_event.payload)
+
+    submit_events_to_newrelic(nr_events)
 
 
 if __name__ == "__main__":

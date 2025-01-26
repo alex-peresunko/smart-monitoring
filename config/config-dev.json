@@ -8,11 +8,13 @@
     "last_weeks_to_check": 4
   },
   "newrelic": {
-    "collection": "Smart_Monitoring_DEBUG"
+    "collection": "Smart_Monitoring_DEBUG",
+    "nr_ingest_account_id": 3584211,
+    "nr_ingesting_key_env_var_prefix": "NR_INGEST_KEY"
   },
   "logging": {
     "log_folder": "log",
-    "level": "DEBUG",
+    "level": "INFO",
     "keep_logs_for_days": 30,
     "stderr_handler": true,
     "format": "%(asctime)s :: %(name)s :: %(levelname)-8s :: %(message)s"

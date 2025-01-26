@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import time
+import zlib
 from src.logger import Logger
 
 
@@ -90,3 +91,59 @@ class NRQL(object):
         except:
             return None
 
+class NewrelicEvent:
+    def __init__(self):
+        self.payload = {}
+
+    def set_field_value(self, field_name: str, value):
+        self.payload[field_name] = value
+
+
+class Newrelic:
+    def __init__(self, account, api_key):
+        self.logger = Logger().get_logger(__name__)
+        self.account = account
+        self.api_key = api_key
+        self.collector_url = "https://insights-collector.newrelic.com/v1/accounts/{}/events".format(self.account)
+
+    @staticmethod
+    def deflate_string(data, level=9):
+        return zlib.compress(str(data).encode(), level)
+
+    @staticmethod
+    def set_events_collection(events: list, collection_name: str) -> list:
+        for event in events:
+            event['eventType'] = collection_name
+        return events
+
+    def submit_data(self, events, collection, compress=False):
+
+        events = self.set_events_collection(events, collection)
+
+        request_headers = {
+            'Content-Type': 'application/json',
+            'Api-Key': self.api_key
+        }
+
+        if compress:  # compressing data before submitting
+            payload = self.deflate_string(json.dumps(events))
+            request_headers['Content-Encoding'] = 'deflate'
+        else:
+            payload = json.dumps(events)
+
+        self.logger.debug("Submitting {} events to Newrelic collection {}".format(len(events), collection))
+        try:
+            response = requests.post(self.collector_url,
+                                     data=payload,
+                                     headers=request_headers,
+                                     timeout=60)
+            if response.status_code == 200:
+                self.logger.info("Successfully submitted events to NR. Response: {}".format(response.text))
+                return True
+            else:
+                self.logger.error("Could not submit events to NR. code={}, message={}"
+                                  .format(response.status_code, response.text))
+                return False
+        except requests.exceptions.RequestException as e:
+            self.logger.error("Could not connect to NR. {}".format(e))
+            raise requests.exceptions.RequestException(e)
