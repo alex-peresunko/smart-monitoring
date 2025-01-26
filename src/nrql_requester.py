@@ -1,6 +1,9 @@
 import threading
-from newrelic import NRQL
+from src.newrelic import NRQL
+from src.logger import Logger
 
+
+logger = Logger().get_logger(__name__)
 
 class ThreadWithException(threading.Thread):
     def __init__(self, *args, **kwargs):
@@ -13,8 +16,6 @@ class ThreadWithException(threading.Thread):
                 self._target(*self._args, **self._kwargs)
         except Exception as e:
             self.exception = e
-            # traceback.print_exc()
-
 
 
 class NRQLRequester:
@@ -44,8 +45,7 @@ class NRQLRequester:
             try:
                 result = nrql_obj.query(nrql_query)
             except Exception as e:
-                # TODO: log the error
-                print(f"Thread {name} raised an exception: {e}")
+                logger.error(f"Thread {name} raised an exception: {e}")
                 pass
             finally:
                 output_queue.put((request_id, result))
@@ -64,7 +64,7 @@ class NRQLRequester:
         for thread in self.threads:
             thread.join()
             if thread.exception:
-                print(f"Thread {thread.name} raised an exception: {thread.exception}")
+                logger.error(f"Thread {thread.name} raised an exception: {thread.exception}")
 
 
         # Retrieve results from the output queue

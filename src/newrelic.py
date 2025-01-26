@@ -2,7 +2,10 @@ import requests
 import json
 import os
 import time
+from src.logger import Logger
 
+
+logger = Logger().get_logger(__name__)
 
 NERDGRAPH_URL = "https://api.newrelic.com/graphql"
 
@@ -22,7 +25,7 @@ class NR_REQUEST(object):
             try:
                 response = requests.post(self.url, json=json, headers=headers)
             except requests.exceptions.RequestException as e:
-                print(f"Request failed: {e}")
+                logger.error(f"Request failed: {e}")
                 return None
             if response.status_code == 200:
                 return response
@@ -31,7 +34,7 @@ class NR_REQUEST(object):
                 attempt += 1
             else:
                 raise Exception(f"Error: {response.status_code} - {response.text}")
-        print("ERROR: Could not obtain response from Newrelic")
+        logger.error("ERROR: Could not obtain response from Newrelic")
         return None
 
 
@@ -66,7 +69,7 @@ class NRQL(object):
         data = response.json()
         if 'errors' in data:
             for error in data['errors']:
-                print(json.dumps(error, indent=2))
+                logger.error(json.dumps(error, indent=2))
             return None
         else:
             return data

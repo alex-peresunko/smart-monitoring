@@ -1,0 +1,19 @@
+{
+  "generic": {
+    "parallelism": 10,
+    "conn-timeout-seconds": 5
+  },
+  "profile": {
+    "name": "profiles/profile-dev.json"
+  },
+  "newrelic": {
+    "collection": "Smart_Monitoring_DEBUG"
+  },
+  "logging": {
+    "log_folder": "log",
+    "level": "DEBUG",
+    "keep_logs_for_days": 30,
+    "stderr_handler": true,
+    "format": "%(asctime)s :: %(name)s :: %(levelname)-8s :: %(message)s"
+  }
+}

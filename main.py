@@ -1,22 +1,19 @@
-from nrql_requester import NRQLRequester
-from newrelic import NRQL
+#!/usr/bin/env python3
+
 import json
 import queue
 import uuid
+from src.nrql_requester import NRQLRequester
+from src.config_parser import ConfigParser
+from src.logger import Logger
 
 
 
 def main():
-    '''
-    nrql = NRQL()
-    nrql.set_account(3584211)
-    result = nrql.query("SELECT uniquecount(`Queue Name`) from Queue LIMIT MAX")
-    print(result)
-    exit()
-    '''
+    config = ConfigParser().config
+    logger = Logger().get_logger(__name__)
 
-
-    profile = json.load(open("profile.json", "r"))
+    profile = json.load(open(config["profile"]["name"], "r"))
 
     input_queue = queue.Queue()
     output_queue = queue.Queue()
@@ -30,15 +27,13 @@ def main():
 
         request_id = str(uuid.uuid4())
         request_item = (request_id, account_id, nrql)
-        print(request_item)
+        logger.debug(request_item)
         requester.request(request_item)
 
 
 
     for result in  requester.get_results():
         print(result)
-
-
 
 
 
