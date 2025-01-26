@@ -1,4 +1,5 @@
 from nrql_requester import NRQLRequester
+from newrelic import NRQL
 import json
 import queue
 import uuid
@@ -6,6 +7,15 @@ import uuid
 
 
 def main():
+    '''
+    nrql = NRQL()
+    nrql.set_account(3584211)
+    result = nrql.query("SELECT uniquecount(`Queue Name`) from Queue LIMIT MAX")
+    print(result)
+    exit()
+    '''
+
+
     profile = json.load(open("profile.json", "r"))
 
     input_queue = queue.Queue()

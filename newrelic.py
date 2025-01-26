@@ -19,7 +19,11 @@ class NR_REQUEST(object):
         attempt = 1
         while attempt <= self._attempts_max:
             time.sleep(delay)
-            response = requests.post(self.url, json=json, headers=headers)
+            try:
+                response = requests.post(self.url, json=json, headers=headers)
+            except requests.exceptions.RequestException as e:
+                print(f"Request failed: {e}")
+                return None
             if response.status_code == 200:
                 return response
             if response.status_code == 429:
@@ -59,22 +63,18 @@ class NRQL(object):
             "Api-Key": self.api_key,
         }
         response = self.request.post(json=payload, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            if 'errors' in data:
-                for error in data['errors']:
-                    print(json.dumps(error, indent=2))
-                return None
-            else:
-                result_count = len(data["data"]["actor"]["account"]["nrql"]["results"])
-                # print(f"Result count: {result_count}")
-                return data
+        data = response.json()
+        if 'errors' in data:
+            for error in data['errors']:
+                print(json.dumps(error, indent=2))
+            return None
         else:
-            raise Exception(f"Error: {response.status_code} - {response.text}")
+            return data
+
 
     def query(self, nrql_query):
         if not self.account_id or not self.api_key:
-            return None
+            raise Exception(f"No account id or API key defined for {nrql_query}")
         response = self._make_request(nrql_query)
         try:
             if response:
