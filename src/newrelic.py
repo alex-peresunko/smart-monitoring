@@ -87,6 +87,8 @@ class NRQL(object):
                     raise Exception(f'Expected one result, got {len(data.keys())} for: {nrql_query}')
                 for key in list(data.keys()):
                     value = data[key]
+                    if value is None:
+                        logger.warning(f"Got no results from Newrelic: {nrql_query}")
                     return value
         except:
             return None

@@ -42,7 +42,8 @@ def calc_average_historical(arr):
             key = list(d.keys())[0]
             if key != 0:
                 # Add the value to the total sum and increment the count
-                total_sum += d[key]
+                if d[key] is not None:
+                    total_sum += d[key]
                 count += 1
 
     # Calculate the average if count is greater than 0
@@ -106,8 +107,15 @@ def main():
 
     for signal in profile["signals"]:
         signal["data"] = get_data_by_id(signal["id"])
+        # logger.debug(signal)
         signal["historical_avg"] = calc_average_historical(signal["data"])
-        signal["curr_value_deviation"] = get_latest_value(signal["data"]) / signal["historical_avg"] * 100
+        if signal["historical_avg"] != 0:
+            signal["curr_value_deviation"] = get_latest_value(signal["data"]) / signal["historical_avg"] * 100
+        else:
+            if get_latest_value(signal["data"]) == 0:
+                signal["curr_value_deviation"] = 100
+            else:
+                signal["curr_value_deviation"] = None
 
     nr_events = []
     for signal in profile["signals"]:
