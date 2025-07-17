@@ -3,10 +3,15 @@
 import json
 import queue
 import time
+from dotenv import load_dotenv
+
 from src.nrql_requester import NRQLRequester
 from src.newrelic import Newrelic, NewrelicEvent
 from src.config_parser import ConfigParser
 from src.logger import Logger
+
+# Load environment variables from .env file
+load_dotenv()
 
 config = ConfigParser().config
 logger = Logger().get_logger(__name__)
