@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from src.nrql_requester import NRQLRequester
 from src.newrelic import Newrelic, NewrelicEvent
+from src.dataclasses import NewrelicTask
 from src.config_parser import ConfigParser
 from src.logger import Logger
 
@@ -81,27 +82,30 @@ def main():
                              CURRENT_TIME_MS)
         account_id = signal["nr_account"]
         signal["id"] = signal_id
-        request_item = (signal["id"], week_num, account_id, nrql)
-        logger.debug(request_item)
-        requester.request(request_item)
+        # request_item = (signal["id"], week_num, account_id, nrql)
+        task = NewrelicTask(signal["id"], account_id, week_num, nrql)
+        logger.debug(task.export_dict())
+        # logger.debug(request_item)
+        requester.request(task)
 
         for from_ms, to_ms in get_periods():
             week_num += 1
             nrql = nrql_add_time(signal["nrql"], from_ms, to_ms)
-            request_item = (signal["id"], week_num, account_id, nrql)
-            logger.debug(request_item)
-            requester.request(request_item)
+            task_history = NewrelicTask(signal["id"], account_id, week_num, nrql)
+            # request_item = (signal["id"], week_num, account_id, nrql)
+            logger.debug(task_history.export_dict())
+            requester.request(task_history)
 
     full_data = requester.get_results()
 
-    for item in full_data:
-        logger.debug(item)
+    for task in full_data:
+        logger.debug(task.export_dict())
 
     def get_data_by_id(signal_id):
         h_data = []
-        for s_id, week_num, result in full_data:
-            if s_id == signal_id:
-                h_data.append({week_num: result})
+        for task in full_data:
+            if task.signal_id == signal_id:
+                h_data.append({task.week_number: task.result.data})
         return h_data
 
     def get_latest_value(arr):

@@ -35,20 +35,21 @@ class NRQLRequester:
         name = threading.current_thread().name
         nrql_obj = NRQL()
         while True:
-            data = input_queue.get()
-            if data is None:
+            task = input_queue.get()
+            if task is None:
                 break
             # Process the data (replace this with actual processing logic)
-            request_id, week_num, account_id, nrql_query = data
-            nrql_obj.set_account(account_id)
+            # request_id, week_num, account_id, nrql_query = data
+            nrql_obj.set_account(task.account_id)
             result = None
             try:
-                result = nrql_obj.query(nrql_query)
+                result = nrql_obj.query(task.nrql_query)
             except Exception as e:
                 logger.error(f"Thread {name} raised an exception: {e}")
                 pass
             finally:
-                output_queue.put((request_id, week_num, result))
+                task.result.data = result
+                output_queue.put(task)
                 input_queue.task_done()
 
     def request(self, data):
